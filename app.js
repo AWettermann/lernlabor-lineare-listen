@@ -105,11 +105,34 @@ choices:["Ist der zu löschende Knoten bzw. sein Vorgänger bereits bekannt, kan
 answers:[0,1,3],
 solution:"Richtig sind 1, 2 und 4. Das reine Entfernen eines bereits lokalisierten Knotens kann durch wenige Referenzänderungen O(1) sein. Muss der Knoten erst gesucht werden, benötigt die Suche im Worst Case O(n). Die Gesamtaussage „immer O(1)“ ist daher falsch."},
 
-{id:8,section:"Nutzdaten",skill:"Nutzdaten vs. Struktur",afb:"AFB II",points:4,type:"multi",title:"Zielort ändern",
-prompt:"Warum muss beim Ändern des Zielorts eines Pakets normalerweise keine naechster-Referenz verändert werden? Wähle alle richtigen Aussagen.",
-choices:["Der Zielort gehört zu den Nutzdaten des Paketobjekts.","Die naechster-Referenz beschreibt die Struktur bzw. Verkettung der Liste.","Eine Änderung des Zielorts verändert automatisch die Reihenfolge aller Knoten.","Wenn nur der Zielort geändert wird, kann die Verkettung der Knoten unverändert bleiben.","Nutzdaten und Strukturdaten sind bei einer verketteten Liste immer identisch."],
-answers:[0,1,3],
-solution:"Richtig sind 1, 2 und 4: Der Zielort ist ein Nutzdatum des Pakets. naechster gehört zur Listenstruktur. Eine Änderung des Zielorts erfordert deshalb normalerweise keine Änderung der Verkettung."},
+{id:55,section:"Einfügen",skill:"Sortiertes Einfügen",afb:"AFB III",points:8,type:"code",title:"Einfügeposition selbst finden",
+prompt:"Die Paketliste ist nach Gewicht aufsteigend sortiert. Implementiere public void sortiertEinfuegen(Paket paket). Die Methode soll die richtige Einfügeposition selbst finden und das neue Paket dort einfügen. Pakete mit gleichem Gewicht sollen in ihrer bisherigen Eintreffreihenfolge bleiben; ein neu eintreffendes Paket gleichen Gewichts wird also hinter bereits vorhandenen Paketen dieses Gewichts eingefügt. Berücksichtige eine leere Liste, das Einfügen am Anfang, innerhalb der Liste und am Ende. Verändere nur die notwendigen Referenzen.",
+focus:["Einfügeposition durch Traversieren finden","Leere Liste und Listenanfang berücksichtigen","Gleich schwere Pakete in Eintreffreihenfolge belassen","Neuen Knoten korrekt mit Nachfolger verbinden","Vorgänger mit neuem Knoten verbinden"],
+starter:`public void sortiertEinfuegen(Paket paket) {\n    // dein Code\n}`,
+solution:`public void sortiertEinfuegen(Paket paket) {
+    Knoten neu = new Knoten(paket);
+
+    if (erster == null || paket.getGewicht() < erster.getPaket().getGewicht()) {
+        neu.setNaechster(erster);
+        erster = neu;
+        return;
+    }
+
+    Knoten aktuell = erster;
+    while (aktuell.getNaechster() != null
+            && aktuell.getNaechster().getPaket().getGewicht() <= paket.getGewicht()) {
+        aktuell = aktuell.getNaechster();
+    }
+
+    neu.setNaechster(aktuell.getNaechster());
+    aktuell.setNaechster(neu);
+}`},
+
+{id:8,section:"Nutzdaten",skill:"Nutzdaten vs. Struktur",afb:"AFB III",points:5,type:"multi",title:"Wenn Nutzdaten die Struktur beeinflussen",
+prompt:"Eine Paketliste ist nach Gewicht aufsteigend sortiert. Beim Paket P300 wird das gespeicherte Gewicht von 8,0 kg auf 2,0 kg korrigiert. Welche Aussagen sind richtig? Wähle alle richtigen Aussagen.",
+choices:["Das Gewicht gehört weiterhin zu den Nutzdaten des Paketobjekts.","Die naechster-Referenzen gehören zu den Strukturdaten der Liste.","Weil nur ein Nutzdatum geändert wird, bleibt eine nach Gewicht sortierte Liste in jedem Fall korrekt sortiert.","Nach der Gewichtsänderung muss geprüft werden, ob P300 noch an der richtigen Position steht.","Ist die Sortierreihenfolge verletzt, kann P300 aus seiner bisherigen Position entfernt und an der passenden Stelle wieder eingefügt werden.","Jede Änderung eines Nutzdatums erfordert grundsätzlich eine Änderung der Listenstruktur."],
+answers:[0,1,3,4],
+solution:"Richtig sind 1, 2, 4 und 5. Das Gewicht ist ein Nutzdatum und naechster gehört zur Struktur. Weil das Gewicht hier zugleich das Sortierkriterium der Liste ist, kann eine Änderung dieses Nutzdatums die Ordnungsinvariante verletzen. Dann muss der Knoten gegebenenfalls strukturell neu eingeordnet werden. Nicht jede Nutzdatenänderung erfordert eine Strukturänderung."},
 
 {id:9,section:"Transfer",skill:"Datenstruktur beurteilen",afb:"AFB III",points:6,type:"multi",title:"Array oder Liste?",
 prompt:"Im Logistikzentrum wird häufig auf ein Paket an einer bereits bekannten Positionsnummer zugegriffen. Welche Aussagen sind richtig? Wähle alle richtigen Aussagen.",
@@ -360,12 +383,14 @@ const RUBRICS={
      test:a=>hasConcept(a,"linear")}
   ],
   8:[
-    {label:"Zielort als Nutzdatum des Paketobjekts erkannt",pts:2,
-     test:a=>(hasAny(a,["zielort","ziel","adresse"])&&hasConcept(a,"payload"))},
-    {label:"Listenstruktur den Knoten/Referenzen zugeordnet",pts:1,
+    {label:"Gewicht als Nutzdatum erkannt",pts:1,
+     test:a=>(hasAny(a,["gewicht"])&&hasConcept(a,"payload"))},
+    {label:"naechster/Referenzen als Strukturdaten erkannt",pts:1,
      test:a=>hasConcept(a,"structure")},
-    {label:"Struktur bleibt beim Ändern des Zielorts unverändert",pts:1,
-     test:a=>hasConcept(a,"unchanged")}
+    {label:"Sortierkriterium bzw. Sortierreihenfolge als Problem erkannt",pts:2,
+     test:a=>hasAny(a,["sortiert","sortierung","reihenfolge","position","richtige stelle","ordnung"])},
+    {label:"Gegebenenfalls strukturelles Neueinordnen erkannt",pts:1,
+     test:a=>hasAny(a,["neu einfügen","neu einfuegen","entfernen und","umhaengen","umhängen","neu einordnen","position ändern","position aendern"])}
   ],
   9:[
     {label:"Array als geeignetere Struktur gewählt",pts:2,
@@ -440,6 +465,25 @@ function codeEvaluate(t,a){
     ["Zählvariable initialisiert",hasCounter],["Laufreferenz startet bei erster",hasStart],
     ["Schleife läuft bis null",hasLoop],["Laufreferenz wird zum Nachfolger weitergesetzt",hasAdvance],
     ["Zähler wird erhöht",hasInc],["Ergebnis wird zurückgegeben",hasReturn]
+   ];
+   return structuralResult(rows);
+ }
+ if(t.id===55){
+   const hasNew=/knoten\s+\w+\s*=\s*new\s+knoten\s*\(\s*paket\s*\)/.test(x);
+   const hasFirstCase=/erster\s*==\s*null/.test(x)&&/erster\s*=\s*\w+\s*;/.test(x);
+   const hasWeight=/getgewicht\s*\(\s*\)/.test(x);
+   const hasLoop=/while\s*\(/.test(x)&&/getnaechster\s*\(\s*\)/.test(x);
+   const preservesEquals=/<=\s*paket\.getgewicht\s*\(\s*\)/.test(x)||/paket\.getgewicht\s*\(\s*\)\s*>=/.test(x);
+   const setNewNext=/\w+\.setnaechster\s*\(\s*\w+\.getnaechster\s*\(\s*\)\s*\)/.test(x);
+   const linkPrev=/\w+\.setnaechster\s*\(\s*\w+\s*\)/.test(x);
+   const rows=[
+    ["Neuer Knoten wird erzeugt",hasNew],
+    ["Leere Liste bzw. Einfügen am Anfang wird behandelt",hasFirstCase],
+    ["Gewicht wird als Sortierkriterium verwendet",hasWeight],
+    ["Einfügeposition wird durch Traversieren gesucht",hasLoop],
+    ["Gleich schwere vorhandene Pakete bleiben vor dem neuen Paket",preservesEquals],
+    ["Neuer Knoten übernimmt den bisherigen Nachfolger",setNewNext],
+    ["Vorgänger wird mit dem neuen Knoten verbunden",linkPrev]
    ];
    return structuralResult(rows);
  }
@@ -582,6 +626,7 @@ function adaptiveBank(){
  "Konstante Referenzänderung fehlt":"Begründe, warum das reine Umhängen einer bekannten Referenz O(1) ist.",
  "Gesamtkomplexität fehlt":"Beurteile die Gesamtlaufzeit von loeschen(String paketnummer), wenn nur die Paketnummer bekannt ist.",
  "Suche und Änderung nicht getrennt":"Zerlege loeschen(String paketnummer) in Teiloperationen und gib deren jeweilige Komplexität an.",
+ "Sortiertes Einfügen noch unsicher":"Zeichne eine nach Gewicht sortierte Liste und markiere zuerst nur die Stelle, an der ein neues Paket eingefügt werden muss. Notiere danach die zwei notwendigen Referenzänderungen.",
  "Nutzdaten nicht erkannt":"Ordne ein: Zielort ändern, Status ändern, Paket löschen, Paket einfügen – Nutzdatenänderung oder Strukturänderung?",
  "Struktur nicht abgegrenzt":"Erläutere den Unterschied zwischen Paketobjekt, Knotenobjekt und naechster-Referenz.",
  "Keine Entscheidung":"Wähle für häufigen Direktzugriff zwischen Array und Liste und begründe.",
